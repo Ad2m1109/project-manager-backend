@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.ActivityLog;
 import com.example.demo.repository.ActivityLogRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class ActivityLogService {
         return activityLogRepository.findAll();
     }
 
-    public Optional<ActivityLog> findById(Long id) {
-        return activityLogRepository.findById(id);
+    public ActivityLog findById(Long id) {
+        return activityLogRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ActivityLog not found with id " + id));
     }
 
     public ActivityLog save(ActivityLog activityLog) {

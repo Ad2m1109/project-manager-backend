@@ -27,8 +27,8 @@ public class DepartmentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Department> getDepartmentById(@PathVariable Long id) {
-        Optional<Department> department = departmentService.findById(id);
-        return department.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Department department = departmentService.findById(id);
+        return ResponseEntity.ok(department);
     }
 
     @PostMapping
@@ -38,15 +38,10 @@ public class DepartmentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Department> updateDepartment(@PathVariable Long id, @RequestBody Department departmentDetails) {
-        Optional<Department> departmentOptional = departmentService.findById(id);
-        if (departmentOptional.isPresent()) {
-            Department department = departmentOptional.get();
-            // Update fields here
-            department.setName(departmentDetails.getName());
-            return ResponseEntity.ok(departmentService.save(department));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Department department = departmentService.findById(id);
+        // Update fields here
+        department.setName(departmentDetails.getName());
+        return ResponseEntity.ok(departmentService.save(department));
     }
 
     @DeleteMapping("/{id}")

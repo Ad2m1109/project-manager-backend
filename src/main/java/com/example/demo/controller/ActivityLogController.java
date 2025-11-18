@@ -27,8 +27,8 @@ public class ActivityLogController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ActivityLog> getActivityLogById(@PathVariable Long id) {
-        Optional<ActivityLog> activityLog = activityLogService.findById(id);
-        return activityLog.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        ActivityLog activityLog = activityLogService.findById(id);
+        return ResponseEntity.ok(activityLog);
     }
 
     @PostMapping
@@ -38,15 +38,10 @@ public class ActivityLogController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ActivityLog> updateActivityLog(@PathVariable Long id, @RequestBody ActivityLog activityLogDetails) {
-        Optional<ActivityLog> activityLogOptional = activityLogService.findById(id);
-        if (activityLogOptional.isPresent()) {
-            ActivityLog activityLog = activityLogOptional.get();
-            // Update fields here
-            // activityLog.set...
-            return ResponseEntity.ok(activityLogService.save(activityLog));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        ActivityLog activityLog = activityLogService.findById(id);
+        // Update fields here
+        // activityLog.set...
+        return ResponseEntity.ok(activityLogService.save(activityLog));
     }
 
     @DeleteMapping("/{id}")

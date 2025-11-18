@@ -27,8 +27,8 @@ public class ProjectMemberController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectMember> getProjectMemberById(@PathVariable Long id) {
-        Optional<ProjectMember> projectMember = projectMemberService.findById(id);
-        return projectMember.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        ProjectMember projectMember = projectMemberService.findById(id);
+        return ResponseEntity.ok(projectMember);
     }
 
     @PostMapping
@@ -38,15 +38,10 @@ public class ProjectMemberController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectMember> updateProjectMember(@PathVariable Long id, @RequestBody ProjectMember projectMemberDetails) {
-        Optional<ProjectMember> projectMemberOptional = projectMemberService.findById(id);
-        if (projectMemberOptional.isPresent()) {
-            ProjectMember projectMember = projectMemberOptional.get();
-            // Update fields here
-            // projectMember.set...
-            return ResponseEntity.ok(projectMemberService.save(projectMember));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        ProjectMember projectMember = projectMemberService.findById(id);
+        // Update fields here
+        // projectMember.set...
+        return ResponseEntity.ok(projectMemberService.save(projectMember));
     }
 
     @DeleteMapping("/{id}")

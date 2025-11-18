@@ -27,8 +27,8 @@ public class SprintController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Sprint> getSprintById(@PathVariable Long id) {
-        Optional<Sprint> sprint = sprintService.findById(id);
-        return sprint.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Sprint sprint = sprintService.findById(id);
+        return ResponseEntity.ok(sprint);
     }
 
     @PostMapping
@@ -38,18 +38,13 @@ public class SprintController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Sprint> updateSprint(@PathVariable Long id, @RequestBody Sprint sprintDetails) {
-        Optional<Sprint> sprintOptional = sprintService.findById(id);
-        if (sprintOptional.isPresent()) {
-            Sprint sprint = sprintOptional.get();
-            // Update fields here
-            sprint.setName(sprintDetails.getName());
-            sprint.setGoal(sprintDetails.getGoal());
-            sprint.setStartDate(sprintDetails.getStartDate());
-            sprint.setEndDate(sprintDetails.getEndDate());
-            return ResponseEntity.ok(sprintService.save(sprint));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Sprint sprint = sprintService.findById(id);
+        // Update fields here
+        sprint.setName(sprintDetails.getName());
+        sprint.setGoal(sprintDetails.getGoal());
+        sprint.setStartDate(sprintDetails.getStartDate());
+        sprint.setEndDate(sprintDetails.getEndDate());
+        return ResponseEntity.ok(sprintService.save(sprint));
     }
 
     @DeleteMapping("/{id}")

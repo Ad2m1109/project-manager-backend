@@ -27,8 +27,8 @@ public class ProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        Optional<Project> project = projectService.findById(id);
-        return project.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Project project = projectService.findById(id);
+        return ResponseEntity.ok(project);
     }
 
     @PostMapping
@@ -38,20 +38,15 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project projectDetails) {
-        Optional<Project> projectOptional = projectService.findById(id);
-        if (projectOptional.isPresent()) {
-            Project project = projectOptional.get();
-            // Update fields here
-            project.setName(projectDetails.getName());
-            project.setDescription(projectDetails.getDescription());
-            project.setPriority(projectDetails.getPriority());
-            project.setStatus(projectDetails.getStatus());
-            project.setStartDate(projectDetails.getStartDate());
-            project.setDueDate(projectDetails.getDueDate());
-            return ResponseEntity.ok(projectService.save(project));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Project project = projectService.findById(id);
+        // Update fields here
+        project.setName(projectDetails.getName());
+        project.setDescription(projectDetails.getDescription());
+        project.setPriority(projectDetails.getPriority());
+        project.setStatus(projectDetails.getStatus());
+        project.setStartDate(projectDetails.getStartDate());
+        project.setDueDate(projectDetails.getDueDate());
+        return ResponseEntity.ok(projectService.save(project));
     }
 
     @DeleteMapping("/{id}")

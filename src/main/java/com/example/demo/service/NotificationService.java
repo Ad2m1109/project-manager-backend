@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.Notification;
 import com.example.demo.repository.NotificationRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class NotificationService {
         return notificationRepository.findAll();
     }
 
-    public Optional<Notification> findById(Long id) {
-        return notificationRepository.findById(id);
+    public Notification findById(Long id) {
+        return notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id " + id));
     }
 
     public Notification save(Notification notification) {

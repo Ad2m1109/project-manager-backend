@@ -27,8 +27,8 @@ public class AttachmentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Attachment> getAttachmentById(@PathVariable Long id) {
-        Optional<Attachment> attachment = attachmentService.findById(id);
-        return attachment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Attachment attachment = attachmentService.findById(id);
+        return ResponseEntity.ok(attachment);
     }
 
     @PostMapping
@@ -38,17 +38,12 @@ public class AttachmentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Attachment> updateAttachment(@PathVariable Long id, @RequestBody Attachment attachmentDetails) {
-        Optional<Attachment> attachmentOptional = attachmentService.findById(id);
-        if (attachmentOptional.isPresent()) {
-            Attachment attachment = attachmentOptional.get();
-            // Update fields here
-            attachment.setFileName(attachmentDetails.getFileName());
-            attachment.setFileUrl(attachmentDetails.getFileUrl());
-            attachment.setFileType(attachmentDetails.getFileType());
-            return ResponseEntity.ok(attachmentService.save(attachment));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Attachment attachment = attachmentService.findById(id);
+        // Update fields here
+        attachment.setFileName(attachmentDetails.getFileName());
+        attachment.setFileUrl(attachmentDetails.getFileUrl());
+        attachment.setFileType(attachmentDetails.getFileType());
+        return ResponseEntity.ok(attachmentService.save(attachment));
     }
 
     @DeleteMapping("/{id}")

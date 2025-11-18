@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.Task;
 import com.example.demo.repository.TaskRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Optional<Task> findById(Long id) {
-        return taskRepository.findById(id);
+    public Task findById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id " + id));
     }
 
     public Task save(Task task) {

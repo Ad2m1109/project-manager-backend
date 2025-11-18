@@ -27,8 +27,8 @@ public class CommentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Comment> getCommentById(@PathVariable Long id) {
-        Optional<Comment> comment = commentService.findById(id);
-        return comment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Comment comment = commentService.findById(id);
+        return ResponseEntity.ok(comment);
     }
 
     @PostMapping
@@ -38,15 +38,10 @@ public class CommentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Comment> updateComment(@PathVariable Long id, @RequestBody Comment commentDetails) {
-        Optional<Comment> commentOptional = commentService.findById(id);
-        if (commentOptional.isPresent()) {
-            Comment comment = commentOptional.get();
-            // Update fields here
-            comment.setContent(commentDetails.getContent());
-            return ResponseEntity.ok(commentService.save(comment));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Comment comment = commentService.findById(id);
+        // Update fields here
+        comment.setContent(commentDetails.getContent());
+        return ResponseEntity.ok(commentService.save(comment));
     }
 
     @DeleteMapping("/{id}")

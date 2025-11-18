@@ -27,8 +27,8 @@ public class AIAnalysisController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AIAnalysis> getAIAnalysisById(@PathVariable Long id) {
-        Optional<AIAnalysis> aiAnalysis = aiAnalysisService.findById(id);
-        return aiAnalysis.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        AIAnalysis aiAnalysis = aiAnalysisService.findById(id);
+        return ResponseEntity.ok(aiAnalysis);
     }
 
     @PostMapping
@@ -38,15 +38,10 @@ public class AIAnalysisController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AIAnalysis> updateAIAnalysis(@PathVariable Long id, @RequestBody AIAnalysis aiAnalysisDetails) {
-        Optional<AIAnalysis> aiAnalysisOptional = aiAnalysisService.findById(id);
-        if (aiAnalysisOptional.isPresent()) {
-            AIAnalysis aiAnalysis = aiAnalysisOptional.get();
-            // Update fields here
-            // aiAnalysis.set...
-            return ResponseEntity.ok(aiAnalysisService.save(aiAnalysis));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        AIAnalysis aiAnalysis = aiAnalysisService.findById(id);
+        // Update fields here
+        // aiAnalysis.set...
+        return ResponseEntity.ok(aiAnalysisService.save(aiAnalysis));
     }
 
     @DeleteMapping("/{id}")

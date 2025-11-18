@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.Attachment;
 import com.example.demo.repository.AttachmentRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class AttachmentService {
         return attachmentRepository.findAll();
     }
 
-    public Optional<Attachment> findById(Long id) {
-        return attachmentRepository.findById(id);
+    public Attachment findById(Long id) {
+        return attachmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + id));
     }
 
     public Attachment save(Attachment attachment) {

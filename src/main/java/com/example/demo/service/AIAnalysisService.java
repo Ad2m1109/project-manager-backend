@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.AIAnalysis;
 import com.example.demo.repository.AIAnalysisRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class AIAnalysisService {
         return aiAnalysisRepository.findAll();
     }
 
-    public Optional<AIAnalysis> findById(Long id) {
-        return aiAnalysisRepository.findById(id);
+    public AIAnalysis findById(Long id) {
+        return aiAnalysisRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("AIAnalysis not found with id " + id));
     }
 
     public AIAnalysis save(AIAnalysis aiAnalysis) {

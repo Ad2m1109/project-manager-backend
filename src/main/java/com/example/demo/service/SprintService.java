@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.Sprint;
 import com.example.demo.repository.SprintRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class SprintService {
         return sprintRepository.findAll();
     }
 
-    public Optional<Sprint> findById(Long id) {
-        return sprintRepository.findById(id);
+    public Sprint findById(Long id) {
+        return sprintRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Sprint not found with id " + id));
     }
 
     public Sprint save(Sprint sprint) {

@@ -27,8 +27,8 @@ public class CompanyController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
-        Optional<Company> company = companyService.findById(id);
-        return company.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Company company = companyService.findById(id);
+        return ResponseEntity.ok(company);
     }
 
     @PostMapping
@@ -38,15 +38,10 @@ public class CompanyController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company companyDetails) {
-        Optional<Company> companyOptional = companyService.findById(id);
-        if (companyOptional.isPresent()) {
-            Company company = companyOptional.get();
-            // Update fields here
-            company.setName(companyDetails.getName());
-            return ResponseEntity.ok(companyService.save(company));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Company company = companyService.findById(id);
+        // Update fields here
+        company.setName(companyDetails.getName());
+        return ResponseEntity.ok(companyService.save(company));
     }
 
     @DeleteMapping("/{id}")

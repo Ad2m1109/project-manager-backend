@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.Role;
 import com.example.demo.repository.RoleRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
-    public Optional<Role> findById(Long id) {
-        return roleRepository.findById(id);
+    public Role findById(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found with id " + id));
     }
 
     public Role save(Role role) {

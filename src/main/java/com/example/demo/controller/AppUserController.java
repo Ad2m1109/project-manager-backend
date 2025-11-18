@@ -27,8 +27,8 @@ public class AppUserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AppUser> getAppUserById(@PathVariable Long id) {
-        Optional<AppUser> appUser = appUserService.findById(id);
-        return appUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        AppUser appUser = appUserService.findById(id);
+        return ResponseEntity.ok(appUser);
     }
 
     @PostMapping
@@ -38,18 +38,13 @@ public class AppUserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AppUser> updateAppUser(@PathVariable Long id, @RequestBody AppUser appUserDetails) {
-        Optional<AppUser> appUserOptional = appUserService.findById(id);
-        if (appUserOptional.isPresent()) {
-            AppUser appUser = appUserOptional.get();
-            // Update fields here
-            appUser.setUsername(appUserDetails.getUsername());
-            appUser.setEmail(appUserDetails.getEmail());
-            appUser.setFirstName(appUserDetails.getFirstName());
-            appUser.setLastName(appUserDetails.getLastName());
-            return ResponseEntity.ok(appUserService.save(appUser));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        AppUser appUser = appUserService.findById(id);
+        // Update fields here
+        appUser.setUsername(appUserDetails.getUsername());
+        appUser.setEmail(appUserDetails.getEmail());
+        appUser.setFirstName(appUserDetails.getFirstName());
+        appUser.setLastName(appUserDetails.getLastName());
+        return ResponseEntity.ok(appUserService.save(appUser));
     }
 
     @DeleteMapping("/{id}")

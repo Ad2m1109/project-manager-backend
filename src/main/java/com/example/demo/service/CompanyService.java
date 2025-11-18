@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.Company;
 import com.example.demo.repository.CompanyRepository;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class CompanyService {
         return companyRepository.findAll();
     }
 
-    public Optional<Company> findById(Long id) {
-        return companyRepository.findById(id);
+    public Company findById(Long id) {
+        return companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id " + id));
     }
 
     public Company save(Company company) {

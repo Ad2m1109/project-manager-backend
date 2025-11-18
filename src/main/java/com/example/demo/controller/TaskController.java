@@ -27,8 +27,8 @@ public class TaskController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        Optional<Task> task = taskService.findById(id);
-        return task.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Task task = taskService.findById(id);
+        return ResponseEntity.ok(task);
     }
 
     @PostMapping
@@ -38,19 +38,14 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task taskDetails) {
-        Optional<Task> taskOptional = taskService.findById(id);
-        if (taskOptional.isPresent()) {
-            Task task = taskOptional.get();
-            // Update fields here
-            task.setTitle(taskDetails.getTitle());
-            task.setDescription(taskDetails.getDescription());
-            task.setStatus(taskDetails.getStatus());
-            task.setPriority(taskDetails.getPriority());
-            task.setDueDate(taskDetails.getDueDate());
-            return ResponseEntity.ok(taskService.save(task));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Task task = taskService.findById(id);
+        // Update fields here
+        task.setTitle(taskDetails.getTitle());
+        task.setDescription(taskDetails.getDescription());
+        task.setStatus(taskDetails.getStatus());
+        task.setPriority(taskDetails.getPriority());
+        task.setDueDate(taskDetails.getDueDate());
+        return ResponseEntity.ok(taskService.save(task));
     }
 
     @DeleteMapping("/{id}")

@@ -27,8 +27,8 @@ public class NotificationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Notification> getNotificationById(@PathVariable Long id) {
-        Optional<Notification> notification = notificationService.findById(id);
-        return notification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Notification notification = notificationService.findById(id);
+        return ResponseEntity.ok(notification);
     }
 
     @PostMapping
@@ -38,17 +38,12 @@ public class NotificationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Notification> updateNotification(@PathVariable Long id, @RequestBody Notification notificationDetails) {
-        Optional<Notification> notificationOptional = notificationService.findById(id);
-        if (notificationOptional.isPresent()) {
-            Notification notification = notificationOptional.get();
-            // Update fields here
-            notification.setMessage(notificationDetails.getMessage());
-            notification.setRead(notificationDetails.isRead());
-            notification.setLinkToResource(notificationDetails.getLinkToResource());
-            return ResponseEntity.ok(notificationService.save(notification));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        Notification notification = notificationService.findById(id);
+        // Update fields here
+        notification.setMessage(notificationDetails.getMessage());
+        notification.setRead(notificationDetails.isRead());
+        notification.setLinkToResource(notificationDetails.getLinkToResource());
+        return ResponseEntity.ok(notificationService.save(notification));
     }
 
     @DeleteMapping("/{id}")
