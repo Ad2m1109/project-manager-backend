@@ -3,15 +3,10 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import java.time.Instant;
-import java.util.Map;
 
 @Entity
-@Table(name = "ai_analysis", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "entityType", "entityId", "analysisType" })
-})
+@Table(name = "ai_analysis")
 @Getter
 @Setter
 public class AIAnalysis {
@@ -19,18 +14,16 @@ public class AIAnalysis {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String entityType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_id", nullable = false)
+    private Task task;
 
-    @Column(nullable = false)
-    private Long entityId;
-
-    @Column(nullable = false)
+    @Column(name = "analysis_type", nullable = false)
     private String analysisType;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "result_data", columnDefinition = "TEXT")
-    private Map<String, Object> resultData;
+    @Lob
+    @Column(name = "result_text", columnDefinition = "TEXT")
+    private String resultText;
 
     @Column(updatable = false)
     private Instant createdAt = Instant.now();

@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,13 +24,15 @@ public class Project {
     private String description;
 
     private String priority;
-    private String status;
-    private LocalDate startDate;
-    private LocalDate dueDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
+    @Column(nullable = false)
+    private String status;
+
+    private LocalDate startDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "founder_id", nullable = false)
+    private AppUser founder;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
@@ -47,11 +48,4 @@ public class Project {
 
     @Column(updatable = false)
     private Instant createdAt = Instant.now();
-
-    private Instant updatedAt = Instant.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }

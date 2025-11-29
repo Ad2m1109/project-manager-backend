@@ -5,25 +5,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "project_members", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"project_id", "user_id"})
-})
+@Table(name = "project_members")
 @Getter
 @Setter
 public class ProjectMember {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    @EmbeddedId
+    private ProjectMemberId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
     private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    @MapsId("projectId")
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @Column(name = "role_in_project", nullable = false)
+    private String roleInProject;
 }

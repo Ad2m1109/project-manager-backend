@@ -3,7 +3,6 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -31,14 +30,4 @@ public class Sprint {
 
     @OneToMany(mappedBy = "sprint")
     private Set<Task> tasks;
-
-    @Column(updatable = false)
-    private Instant createdAt = Instant.now();
-
-    private Instant updatedAt = Instant.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }

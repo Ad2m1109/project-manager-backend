@@ -14,25 +14,19 @@ public class Attachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(nullable = false)
+    @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
-    private String fileType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploader_id", nullable = false)
-    private AppUser uploader;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
+    @JoinColumn(name = "task_id", nullable = false)
     private Task task;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
 
     @Column(updatable = false)
     private Instant createdAt = Instant.now();

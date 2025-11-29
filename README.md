@@ -6,7 +6,7 @@ _(“Intelligent Project Management Platform”)_
 
 ### **Technologies**
 
-- **Frontend:** Angular 18 (TypeScript, HTML, SCSS)
+- **Frontend:** Angular 20.3.4 (TypeScript, HTML, SCSS)
     
 - **Backend:** Spring Boot (Java 21), Spring Security, Spring Data JPA, Spring AI
     

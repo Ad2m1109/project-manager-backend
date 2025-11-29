@@ -29,48 +29,38 @@ public class Task {
     @Column(nullable = false)
     private String priority;
 
-    private Instant dueDate;
-
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
-    @JsonIgnoreProperties({ "tasks", "sprints", "members", "company" })
+    @JsonIgnoreProperties({ "tasks", "sprints", "members" })
     private Project project;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sprint_id")
     @JsonIgnoreProperties({ "tasks", "project" })
     private Sprint sprint;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id")
-    @JsonIgnoreProperties({ "projectMemberships", "company", "department" })
+    @JsonIgnoreProperties({ "projectMemberships" })
     private AppUser assignee;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "reporter_id")
-    @JsonIgnoreProperties({ "projectMemberships", "company", "department" })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reporter_id", nullable = false)
+    @JsonIgnoreProperties({ "projectMemberships" })
     private AppUser reporter;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent_task_id")
-    @JsonIgnoreProperties({ "subTasks", "comments", "project", "sprint", "assignee", "reporter", "parentTask" })
-    private Task parentTask;
-
-    @OneToMany(mappedBy = "parentTask")
-    @JsonIgnore
-    private Set<Task> subTasks;
-
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Comment> comments;
 
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Attachment> attachments;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<AIAnalysis> aiAnalyses;
+
     @Column(updatable = false)
     private Instant createdAt = Instant.now();
-
-    private Instant updatedAt = Instant.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }

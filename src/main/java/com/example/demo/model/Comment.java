@@ -28,11 +28,4 @@ public class Comment {
 
     @Column(updatable = false)
     private Instant createdAt = Instant.now();
-
-    private Instant updatedAt = Instant.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }

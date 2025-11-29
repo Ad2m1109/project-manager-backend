@@ -32,4 +32,8 @@ public class AppUserService {
     public void deleteById(Long id) {
         appUserRepository.deleteById(id);
     }
+
+    public Optional<AppUser> findByEmail(String email) {
+        return appUserRepository.findByEmail(email);
+    }
 }

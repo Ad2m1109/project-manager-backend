@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.ProjectMember;
+import com.example.demo.model.ProjectMemberId;
 import com.example.demo.repository.ProjectMemberRepository;
 
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class ProjectMemberService {
         return projectMemberRepository.findAll();
     }
 
-    public Optional<ProjectMember> findById(Long id) {
+    public Optional<ProjectMember> findById(ProjectMemberId id) {
         return projectMemberRepository.findById(id);
     }
 
@@ -29,7 +30,7 @@ public class ProjectMemberService {
         return projectMemberRepository.save(projectMember);
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(ProjectMemberId id) {
         projectMemberRepository.deleteById(id);
     }
 }
