@@ -1,20 +1,30 @@
 package com.example.demo.controller;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.demo.dto.ProjectDTO;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.Project;
 import com.example.demo.service.AppUserService;
 import com.example.demo.service.ProjectService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/projects")
@@ -23,6 +33,7 @@ import java.util.stream.Collectors;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final com.example.demo.service.ProjectMemberService projectMemberService;
     private final AppUserService appUserService;
 
     @GetMapping
@@ -31,16 +42,56 @@ public class ProjectController {
         String email = auth.getName();
         AppUser currentUser = appUserService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Project> projects;
 
-        // For now, return all projects. In a real app, filter by membership/ownership
-        List<Project> projects = projectService.findAll();
+        if ("FOUNDER".equalsIgnoreCase(currentUser.getRoleType())) {
+            // Return only projects created by this founder
+            projects = projectService.findAll().stream()
+                    .filter(p -> p.getFounder() != null && p.getFounder().getId().equals(currentUser.getId()))
+                    .collect(Collectors.toList());
+        } else if ("EMPLOYEE".equalsIgnoreCase(currentUser.getRoleType())) {
+            // Return projects the employee has joined
+            List<com.example.demo.model.ProjectMember> memberships = projectMemberService.findByUserId(currentUser.getId());
+            projects = memberships.stream().map(com.example.demo.model.ProjectMember::getProject).collect(Collectors.toList());
+        } else {
+            // Default: return no projects for unknown role
+            projects = List.of();
+        }
 
-        List<ProjectDTO> dtos = projects.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
+        List<ProjectDTO> dtos = projects.stream().map(this::convertToDTO).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
+
+        @GetMapping("/founder")
+        public ResponseEntity<List<ProjectDTO>> getFounderProjects() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        AppUser currentUser = appUserService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Project> projects = projectService.findAll().stream()
+            .filter(p -> p.getFounder() != null && p.getFounder().getId().equals(currentUser.getId()))
+            .collect(Collectors.toList());
+
+        List<ProjectDTO> dtos = projects.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+        }
+
+        @GetMapping("/employee")
+        public ResponseEntity<List<ProjectDTO>> getEmployeeProjects() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        AppUser currentUser = appUserService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // find project memberships for this user and return the projects
+        List<com.example.demo.model.ProjectMember> memberships = projectMemberService.findByUserId(currentUser.getId());
+
+        List<Project> projects = memberships.stream().map(com.example.demo.model.ProjectMember::getProject).collect(Collectors.toList());
+
+        List<ProjectDTO> dtos = projects.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+        }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
@@ -56,6 +107,10 @@ public class ProjectController {
         String email = auth.getName();
         AppUser currentUser = appUserService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        // Only Founders can create projects
+        if (!"FOUNDER".equalsIgnoreCase(currentUser.getRoleType())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         Project project = new Project();
         project.setName(projectDTO.getName());

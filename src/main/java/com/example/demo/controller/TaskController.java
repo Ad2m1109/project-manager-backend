@@ -1,5 +1,23 @@
 package com.example.demo.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.demo.dto.TaskDTO;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.Project;
@@ -9,15 +27,8 @@ import com.example.demo.service.AppUserService;
 import com.example.demo.service.ProjectService;
 import com.example.demo.service.SprintService;
 import com.example.demo.service.TaskService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("")
@@ -37,6 +48,15 @@ public class TaskController {
         List<TaskDTO> dtos = tasks.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    // Get tasks for the authenticated user in a specific project
+    @GetMapping("/projects/{projectId}/tasks/me")
+    public ResponseEntity<List<TaskDTO>> getMyProjectTasks(@PathVariable Long projectId, Authentication authentication) {
+        AppUser currentUser = (AppUser) authentication.getPrincipal();
+        List<Task> tasks = taskService.findByProjectIdAndAssigneeId(projectId, currentUser.getId());
+        List<TaskDTO> dtos = tasks.stream().map(this::convertToDTO).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
 

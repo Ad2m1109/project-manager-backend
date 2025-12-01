@@ -1,18 +1,22 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.example.demo.dto.ProjectInvitationDTO;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.Project;
 import com.example.demo.model.ProjectInvitation;
+import com.example.demo.model.ProjectMember;
+import com.example.demo.model.ProjectMemberId;
 import com.example.demo.repository.AppUserRepository;
 import com.example.demo.repository.ProjectInvitationRepository;
+import com.example.demo.repository.ProjectMemberRepository;
 import com.example.demo.repository.ProjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProjectInvitationService {
@@ -26,6 +30,9 @@ public class ProjectInvitationService {
     @Autowired
     private AppUserRepository userRepository;
 
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
+
     public ProjectInvitationDTO sendInvitation(Long projectId, Long invitedUserId, Long invitedById) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
@@ -38,6 +45,41 @@ public class ProjectInvitationService {
 
         // Check if invitation already exists
         if (invitationRepository.findByProjectIdAndInvitedUserIdAndStatus(projectId, invitedUserId, "PENDING")
+                .isPresent()) {
+            throw new RuntimeException("Invitation already sent");
+        }
+
+        ProjectInvitation invitation = new ProjectInvitation();
+        invitation.setProject(project);
+        invitation.setInvitedUser(invitedUser);
+        invitation.setInvitedBy(invitedBy);
+        invitation.setStatus("PENDING");
+
+        ProjectInvitation saved = invitationRepository.save(invitation);
+        return convertToDTO(saved);
+    }
+
+    // Send invitation by email: create user if not exists (as EMPLOYEE) then send invitation
+    public ProjectInvitationDTO sendInvitationByEmail(Long projectId, String email, Long invitedById) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        AppUser invitedUser = userRepository.findByEmail(email).orElse(null);
+        if (invitedUser == null) {
+            // create a lightweight user for the invited email with a random password
+            AppUser newUser = new AppUser();
+            newUser.setFullName(email);
+            newUser.setEmail(email);
+            // set a random password placeholder - should be changed by invitee
+            newUser.setPassword(java.util.UUID.randomUUID().toString());
+            newUser.setRoleType("EMPLOYEE");
+            invitedUser = userRepository.save(newUser);
+        }
+
+        AppUser invitedBy = userRepository.findById(invitedById)
+                .orElseThrow(() -> new RuntimeException("Inviter not found"));
+
+        if (invitationRepository.findByProjectIdAndInvitedUserIdAndStatus(projectId, invitedUser.getId(), "PENDING")
                 .isPresent()) {
             throw new RuntimeException("Invitation already sent");
         }
@@ -75,6 +117,19 @@ public class ProjectInvitationService {
         invitation.setRespondedAt(LocalDateTime.now());
 
         ProjectInvitation saved = invitationRepository.save(invitation);
+        // Add the user to project members if not already present
+        Long pid = saved.getProject().getId();
+        Long uid = saved.getInvitedUser().getId();
+        ProjectMemberId pmId = new ProjectMemberId(uid, pid);
+        boolean exists = projectMemberRepository.findById(pmId).isPresent();
+        if (!exists) {
+            ProjectMember pm = new ProjectMember();
+            pm.setId(pmId);
+            pm.setUser(saved.getInvitedUser());
+            pm.setProject(saved.getProject());
+            pm.setRoleInProject("MEMBER");
+            projectMemberRepository.save(pm);
+        }
         return convertToDTO(saved);
     }
 

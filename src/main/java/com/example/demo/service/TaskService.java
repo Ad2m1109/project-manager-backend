@@ -1,13 +1,13 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Task;
-import com.example.demo.repository.TaskRepository;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.example.demo.model.Task;
+import com.example.demo.repository.TaskRepository;
 
 @Service
 public class TaskService {
@@ -26,6 +26,11 @@ public class TaskService {
     @Transactional(readOnly = true)
     public List<Task> findByProjectId(Long projectId) {
         return taskRepository.findByProjectId(projectId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Task> findByProjectIdAndAssigneeId(Long projectId, Long assigneeId) {
+        return taskRepository.findByProjectIdAndAssigneeId(projectId, assigneeId);
     }
 
     @Transactional(readOnly = true)
