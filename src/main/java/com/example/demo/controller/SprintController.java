@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.example.demo.model.AppUser;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +50,12 @@ public class SprintController {
             @PathVariable Long projectId,
             @RequestBody SprintDTO sprintDTO) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = (AppUser) auth.getPrincipal();
+        if (!"FOUNDER".equals(currentUser.getRoleType())) {
+            return ResponseEntity.status(403).build();
+        }
+
         Project project = projectService.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
@@ -67,6 +76,12 @@ public class SprintController {
             @PathVariable Long id,
             @RequestBody SprintDTO sprintDTO) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = (AppUser) auth.getPrincipal();
+        if (!"FOUNDER".equals(currentUser.getRoleType())) {
+            return ResponseEntity.status(403).build();
+        }
+
         return sprintService.findById(id)
                 .map(existingSprint -> {
                     existingSprint.setName(sprintDTO.getName());
@@ -81,6 +96,12 @@ public class SprintController {
     // Delete a sprint
     @DeleteMapping("/sprints/{id}")
     public ResponseEntity<Void> deleteSprint(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = (AppUser) auth.getPrincipal();
+        if (!"FOUNDER".equals(currentUser.getRoleType())) {
+            return ResponseEntity.status(403).build();
+        }
+
         if (sprintService.findById(id).isPresent()) {
             sprintService.deleteById(id);
             return ResponseEntity.noContent().build();

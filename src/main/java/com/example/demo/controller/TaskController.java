@@ -53,7 +53,8 @@ public class TaskController {
 
     // Get tasks for the authenticated user in a specific project
     @GetMapping("/projects/{projectId}/tasks/me")
-    public ResponseEntity<List<TaskDTO>> getMyProjectTasks(@PathVariable Long projectId, Authentication authentication) {
+    public ResponseEntity<List<TaskDTO>> getMyProjectTasks(@PathVariable Long projectId,
+            Authentication authentication) {
         AppUser currentUser = (AppUser) authentication.getPrincipal();
         List<Task> tasks = taskService.findByProjectIdAndAssigneeId(projectId, currentUser.getId());
         List<TaskDTO> dtos = tasks.stream().map(this::convertToDTO).collect(Collectors.toList());
@@ -79,6 +80,10 @@ public class TaskController {
         String email = auth.getName();
         AppUser currentUser = appUserService.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!"FOUNDER".equals(currentUser.getRoleType())) {
+            return ResponseEntity.status(403).build();
+        }
 
         Project project = projectService.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
@@ -114,6 +119,12 @@ public class TaskController {
     public ResponseEntity<TaskDTO> updateTask(
             @PathVariable Long id,
             @RequestBody TaskDTO taskDTO) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = (AppUser) auth.getPrincipal();
+        if (!"FOUNDER".equals(currentUser.getRoleType())) {
+            return ResponseEntity.status(403).build();
+        }
 
         return taskService.findById(id)
                 .map(existingTask -> {
@@ -162,6 +173,12 @@ public class TaskController {
     // Delete a task
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = (AppUser) auth.getPrincipal();
+        if (!"FOUNDER".equals(currentUser.getRoleType())) {
+            return ResponseEntity.status(403).build();
+        }
+
         if (taskService.findById(id).isPresent()) {
             taskService.deleteById(id);
             return ResponseEntity.noContent().build();
