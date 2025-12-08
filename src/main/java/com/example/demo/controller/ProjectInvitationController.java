@@ -3,7 +3,8 @@ package com.example.demo.controller;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,14 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.ProjectInvitationDTO;
 import com.example.demo.model.AppUser;
 import com.example.demo.service.ProjectInvitationService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ProjectInvitationController {
 
-    @Autowired
-    private ProjectInvitationService invitationService;
+    private final ProjectInvitationService invitationService;
 
     @PostMapping("/projects/{projectId}/invitations")
     public ResponseEntity<ProjectInvitationDTO> sendInvitation(
