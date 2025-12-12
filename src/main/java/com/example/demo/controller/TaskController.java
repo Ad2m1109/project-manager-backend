@@ -91,7 +91,7 @@ public class TaskController {
         Task task = new Task();
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
-        task.setStatus(taskDTO.getStatus() != null ? taskDTO.getStatus() : "TODO");
+        task.setStatus(taskDTO.getStatus() != null ? taskDTO.getStatus() : "PLANNED");
         task.setPriority(taskDTO.getPriority() != null ? taskDTO.getPriority() : "MEDIUM");
         task.setProject(project);
         task.setReporter(currentUser);
@@ -157,7 +157,7 @@ public class TaskController {
     }
 
     // Update task status (for Kanban board drag-and-drop)
-    @PatchMapping("/tasks/{id}/status")
+    @PutMapping("/tasks/{id}/status")
     public ResponseEntity<TaskDTO> updateTaskStatus(
             @PathVariable Long id,
             @RequestBody TaskDTO taskDTO) {
