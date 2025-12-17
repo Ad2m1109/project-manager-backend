@@ -30,6 +30,11 @@ import com.example.demo.service.TaskService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.access.prepost.PreAuthorize;
+import com.example.demo.repository.TaskSpecification;
+import org.springframework.data.jpa.domain.Specification;
+
 @RestController
 @RequestMapping("")
 @CrossOrigin(origins = "*")
@@ -40,6 +45,36 @@ public class TaskController {
     private final ProjectService projectService;
     private final AppUserService appUserService;
     private final SprintService sprintService;
+
+    @GetMapping("/projects/{projectId}/tasks/filter")
+    @PreAuthorize("hasAuthority('FOUNDER')")
+    public ResponseEntity<List<TaskDTO>> getFilteredTasks(
+            @PathVariable Long projectId,
+            @RequestParam(required = false) Long assigneeId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) boolean unassigned) {
+
+        Specification<Task> spec = Specification.where(TaskSpecification.hasProjectId(projectId));
+
+        if (assigneeId != null) {
+            spec = spec.and(TaskSpecification.hasAssigneeId(assigneeId));
+        }
+        if (status != null && !status.isEmpty()) {
+            spec = spec.and(TaskSpecification.hasStatus(status));
+        }
+        if (priority != null && !priority.isEmpty()) {
+            spec = spec.and(TaskSpecification.hasPriority(priority));
+        }
+        if (unassigned) {
+            spec = spec.and(TaskSpecification.isUnassigned());
+        }
+
+        List<Task> tasks = taskService.findAll(spec);
+        List<TaskDTO> dtos = tasks.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
 
     // Get all tasks for a specific project
     @GetMapping("/projects/{projectId}/tasks")
@@ -162,10 +197,21 @@ public class TaskController {
             @PathVariable Long id,
             @RequestBody TaskDTO taskDTO) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        AppUser currentUser = (AppUser) auth.getPrincipal();
+
         return taskService.findById(id)
                 .map(existingTask -> {
+                    // Security check: Founders can update any task, employees only their own.
+                    if ("EMPLOYEE".equals(currentUser.getRoleType())) {
+                        if (existingTask.getAssignee() == null || !existingTask.getAssignee().getId().equals(currentUser.getId())) {
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN).<TaskDTO>build();
+                        }
+                    }
+                    
                     existingTask.setStatus(taskDTO.getStatus());
-                    return ResponseEntity.ok(convertToDTO(taskService.save(existingTask)));
+                    Task updatedTask = taskService.save(existingTask);
+                    return ResponseEntity.ok(convertToDTO(updatedTask));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

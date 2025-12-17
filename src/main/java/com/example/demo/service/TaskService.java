@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.model.Task;
 import com.example.demo.repository.TaskRepository;
 
+import com.example.demo.repository.TaskSpecification;
+import org.springframework.data.jpa.domain.Specification;
+
 @Service
 public class TaskService {
 
@@ -16,6 +19,11 @@ public class TaskService {
 
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Task> findAll(Specification<Task> spec) {
+        return taskRepository.findAll(spec);
     }
 
     @Transactional(readOnly = true)
