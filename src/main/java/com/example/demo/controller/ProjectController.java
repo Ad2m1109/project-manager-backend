@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.ProjectDTO;
+import com.example.demo.dto.ProjectDashboardDTO;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.Project;
 import com.example.demo.service.AppUserService;
@@ -51,8 +52,10 @@ public class ProjectController {
                     .collect(Collectors.toList());
         } else if ("EMPLOYEE".equalsIgnoreCase(currentUser.getRoleType())) {
             // Return projects the employee has joined
-            List<com.example.demo.model.ProjectMember> memberships = projectMemberService.findByUserId(currentUser.getId());
-            projects = memberships.stream().map(com.example.demo.model.ProjectMember::getProject).collect(Collectors.toList());
+            List<com.example.demo.model.ProjectMember> memberships = projectMemberService
+                    .findByUserId(currentUser.getId());
+            projects = memberships.stream().map(com.example.demo.model.ProjectMember::getProject)
+                    .collect(Collectors.toList());
         } else {
             // Default: return no projects for unknown role
             projects = List.of();
@@ -62,36 +65,37 @@ public class ProjectController {
         return ResponseEntity.ok(dtos);
     }
 
-        @GetMapping("/founder")
-        public ResponseEntity<List<ProjectDTO>> getFounderProjects() {
+    @GetMapping("/founder")
+    public ResponseEntity<List<ProjectDTO>> getFounderProjects() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         AppUser currentUser = appUserService.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Project> projects = projectService.findAll().stream()
-            .filter(p -> p.getFounder() != null && p.getFounder().getId().equals(currentUser.getId()))
-            .collect(Collectors.toList());
+                .filter(p -> p.getFounder() != null && p.getFounder().getId().equals(currentUser.getId()))
+                .collect(Collectors.toList());
 
         List<ProjectDTO> dtos = projects.stream().map(this::convertToDTO).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
-        }
+    }
 
-        @GetMapping("/employee")
-        public ResponseEntity<List<ProjectDTO>> getEmployeeProjects() {
+    @GetMapping("/employee")
+    public ResponseEntity<List<ProjectDTO>> getEmployeeProjects() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         AppUser currentUser = appUserService.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         // find project memberships for this user and return the projects
         List<com.example.demo.model.ProjectMember> memberships = projectMemberService.findByUserId(currentUser.getId());
 
-        List<Project> projects = memberships.stream().map(com.example.demo.model.ProjectMember::getProject).collect(Collectors.toList());
+        List<Project> projects = memberships.stream().map(com.example.demo.model.ProjectMember::getProject)
+                .collect(Collectors.toList());
 
         List<ProjectDTO> dtos = projects.stream().map(this::convertToDTO).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
-        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
@@ -99,6 +103,11 @@ public class ProjectController {
                 .map(this::convertToDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/dashboard")
+    public ResponseEntity<ProjectDashboardDTO> getProjectDashboard(@PathVariable Long id) {
+        return ResponseEntity.ok(projectService.getDashboardData(id));
     }
 
     @PostMapping

@@ -14,4 +14,6 @@ public class SprintDTO {
     private Long projectId;
     private String projectName;
     private Integer taskCount;
+    private Double progress;
+    private java.util.List<TaskDTO> tasks;
 }

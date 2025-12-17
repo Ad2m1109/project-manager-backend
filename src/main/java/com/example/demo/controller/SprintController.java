@@ -1,6 +1,9 @@
 package com.example.demo.controller;
+
 import com.example.demo.dto.SprintDTO;
+import com.example.demo.dto.TaskDTO;
 import com.example.demo.model.Project;
+import com.example.demo.model.Task;
 import com.example.demo.model.Sprint;
 import com.example.demo.service.ProjectService;
 import com.example.demo.service.SprintService;
@@ -124,10 +127,30 @@ public class SprintController {
 
         if (sprint.getTasks() != null) {
             dto.setTaskCount(sprint.getTasks().size());
+            dto.setTasks(sprint.getTasks().stream().map(this::convertToTaskDTO).collect(Collectors.toList()));
+
+            long completed = sprint.getTasks().stream().filter(t -> "DONE".equalsIgnoreCase(t.getStatus())).count();
+            dto.setProgress(dto.getTaskCount() > 0 ? (double) completed / dto.getTaskCount() * 100 : 0);
         } else {
             dto.setTaskCount(0);
+            dto.setProgress(0.0);
         }
 
+        return dto;
+    }
+
+    private TaskDTO convertToTaskDTO(Task task) {
+        TaskDTO dto = new TaskDTO();
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setDescription(task.getDescription());
+        dto.setStatus(task.getStatus());
+        dto.setPriority(task.getPriority());
+        dto.setCreatedAt(task.getCreatedAt());
+        if (task.getAssignee() != null) {
+            dto.setAssigneeId(task.getAssignee().getId());
+            dto.setAssigneeName(task.getAssignee().getFullName());
+        }
         return dto;
     }
 }
