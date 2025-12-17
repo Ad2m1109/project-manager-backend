@@ -35,6 +35,9 @@ public class AppUser implements UserDetails {
     @Column(name = "role_type", nullable = false)
     private String roleType;
 
+    @Column(nullable = false)
+    private boolean enabled = false;
+
     @Column(updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -73,6 +76,6 @@ public class AppUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

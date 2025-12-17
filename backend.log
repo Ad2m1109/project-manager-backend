@@ -1,0 +1,186 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< com.example:demo >--------------------------
+[INFO] Building demo 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.3.5:run (default-cli) > test-compile @ demo >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ demo ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ demo ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 63 source files with javac [debug parameters release 21] to target/classes
+[INFO] Annotation processing is enabled because one or more processors were found
+  on the class path. A future release of javac may disable annotation processing
+  unless at least one processor is specified by name (-processor), or a search
+  path is specified (--processor-path, --processor-module-path), or annotation
+  processing is enabled explicitly (-proc:only, -proc:full).
+  Use -Xlint:-options to suppress this message.
+  Use -proc:none to disable annotation processing.
+[INFO] /home/ademyoussfi/Desktop/Projects/project-manager/Backend/src/main/java/com/example/demo/aspect/RateLimitAspect.java: Some input files use or override a deprecated API.
+[INFO] /home/ademyoussfi/Desktop/Projects/project-manager/Backend/src/main/java/com/example/demo/aspect/RateLimitAspect.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ demo ---
+[INFO] skip non existing resourceDirectory /home/ademyoussfi/Desktop/Projects/project-manager/Backend/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ demo ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] 
+[INFO] <<< spring-boot:3.3.5:run (default-cli) < test-compile @ demo <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.3.5:run (default-cli) @ demo ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2025-12-17T22:35:00.748+01:00  INFO 222354 --- [demo] [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 21.0.8 with PID 222354 (/home/ademyoussfi/Desktop/Projects/project-manager/Backend/target/classes started by ademyoussfi in /home/ademyoussfi/Desktop/Projects/project-manager/Backend)
+2025-12-17T22:35:00.750+01:00  INFO 222354 --- [demo] [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+2025-12-17T22:35:01.288+01:00  INFO 222354 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-12-17T22:35:01.338+01:00  INFO 222354 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 44 ms. Found 11 JPA repository interfaces.
+2025-12-17T22:35:01.726+01:00  INFO 222354 --- [demo] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-12-17T22:35:01.735+01:00  INFO 222354 --- [demo] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-12-17T22:35:01.735+01:00  INFO 222354 --- [demo] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2025-12-17T22:35:01.769+01:00  INFO 222354 --- [demo] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-12-17T22:35:01.770+01:00  INFO 222354 --- [demo] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 993 ms
+2025-12-17T22:35:01.856+01:00  INFO 222354 --- [demo] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-12-17T22:35:01.893+01:00  INFO 222354 --- [demo] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2025-12-17T22:35:01.920+01:00  INFO 222354 --- [demo] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-12-17T22:35:02.099+01:00  INFO 222354 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-12-17T22:35:02.116+01:00  INFO 222354 --- [demo] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-12-17T22:35:02.216+01:00  INFO 222354 --- [demo] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@18483b8b
+2025-12-17T22:35:02.217+01:00  INFO 222354 --- [demo] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-12-17T22:35:02.243+01:00  WARN 222354 --- [demo] [           main] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2025-12-17T22:35:02.245+01:00  WARN 222354 --- [demo] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-12-17T22:35:02.894+01:00  INFO 222354 --- [demo] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: alter table ai_analysis modify column result_text TEXT
+Hibernate: alter table chat_logs modify column message TEXT not null
+2025-12-17T22:35:02.958+01:00  INFO 222354 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-12-17T22:35:03.281+01:00  INFO 222354 --- [demo] [           main] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2025-12-17T22:35:03.282+01:00  WARN 222354 --- [demo] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2025-12-17T22:35:03.561+01:00  WARN 222354 --- [demo] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-12-17T22:35:04.013+01:00  INFO 222354 --- [demo] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-12-17T22:35:04.019+01:00  INFO 222354 --- [demo] [           main] com.example.demo.DemoApplication         : Started DemoApplication in 3.496 seconds (process running for 3.726)
+2025-12-17T22:35:30.090+01:00  INFO 222354 --- [demo] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-12-17T22:35:30.096+01:00  INFO 222354 --- [demo] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-12-17T22:35:30.099+01:00  INFO 222354 --- [demo] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+Hibernate: select vc1_0.id,vc1_0.code,vc1_0.email,vc1_0.expiry_date from verification_codes vc1_0 where vc1_0.email=?
+Hibernate: select vc1_0.id,vc1_0.code,vc1_0.email,vc1_0.expiry_date from verification_codes vc1_0 where vc1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: update users set email=?,enabled=?,full_name=?,password=?,role_type=? where id=?
+Hibernate: delete from verification_codes where id=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: insert into users (created_at,email,enabled,full_name,password,role_type) values (?,?,?,?,?,?)
+Hibernate: select vc1_0.id,vc1_0.code,vc1_0.email,vc1_0.expiry_date from verification_codes vc1_0 where vc1_0.email=?
+DEBUG: Jakarta Mail version 2.1.3
+DEBUG: URL jar:file:/home/ademyoussfi/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar!/META-INF/javamail.providers
+DEBUG: successfully loaded resource: jar:file:/home/ademyoussfi/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar!/META-INF/javamail.providers
+DEBUG: successfully loaded resource: /META-INF/javamail.default.providers
+DEBUG: Tables of loaded providers
+DEBUG: Providers Listed By Class Name: {org.eclipse.angus.mail.imap.IMAPStore=jakarta.mail.Provider[STORE,imap,org.eclipse.angus.mail.imap.IMAPStore,Oracle], org.eclipse.angus.mail.smtp.SMTPTransport=jakarta.mail.Provider[TRANSPORT,smtp,org.eclipse.angus.mail.smtp.SMTPTransport,Oracle], org.eclipse.angus.mail.pop3.POP3Store=jakarta.mail.Provider[STORE,pop3,org.eclipse.angus.mail.pop3.POP3Store,Oracle], org.eclipse.angus.mail.pop3.POP3SSLStore=jakarta.mail.Provider[STORE,pop3s,org.eclipse.angus.mail.pop3.POP3SSLStore,Oracle], org.eclipse.angus.mail.smtp.SMTPSSLTransport=jakarta.mail.Provider[TRANSPORT,smtps,org.eclipse.angus.mail.smtp.SMTPSSLTransport,Oracle], org.eclipse.angus.mail.imap.IMAPSSLStore=jakarta.mail.Provider[STORE,imaps,org.eclipse.angus.mail.imap.IMAPSSLStore,Oracle]}
+DEBUG: Providers Listed By Protocol: {imap=jakarta.mail.Provider[STORE,imap,org.eclipse.angus.mail.imap.IMAPStore,Oracle], smtp=jakarta.mail.Provider[TRANSPORT,smtp,org.eclipse.angus.mail.smtp.SMTPTransport,Oracle], pop3=jakarta.mail.Provider[STORE,pop3,org.eclipse.angus.mail.pop3.POP3Store,Oracle], imaps=jakarta.mail.Provider[STORE,imaps,org.eclipse.angus.mail.imap.IMAPSSLStore,Oracle], smtps=jakarta.mail.Provider[TRANSPORT,smtps,org.eclipse.angus.mail.smtp.SMTPSSLTransport,Oracle], pop3s=jakarta.mail.Provider[STORE,pop3s,org.eclipse.angus.mail.pop3.POP3SSLStore,Oracle]}
+DEBUG: successfully loaded resource: /META-INF/javamail.default.address.map
+DEBUG: URL jar:file:/home/ademyoussfi/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar!/META-INF/javamail.address.map
+DEBUG: successfully loaded resource: jar:file:/home/ademyoussfi/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar!/META-INF/javamail.address.map
+DEBUG: getProvider() returning jakarta.mail.Provider[TRANSPORT,smtp,org.eclipse.angus.mail.smtp.SMTPTransport,Oracle]
+DEBUG SMTP: useEhlo true, useAuth true
+DEBUG SMTP: trying to connect to host "smtp.gmail.com", port 587, isSSL false
+220 smtp.gmail.com ESMTP ffacd0b85a97d-43244940120sm1113819f8f.16 - gsmtp
+DEBUG SMTP: connected to host "smtp.gmail.com", port: 587
+EHLO pop-os
+250-smtp.gmail.com at your service, [197.14.231.12]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+DEBUG SMTP: Found extension "SIZE", arg "35882577"
+DEBUG SMTP: Found extension "8BITMIME", arg ""
+DEBUG SMTP: Found extension "STARTTLS", arg ""
+DEBUG SMTP: Found extension "ENHANCEDSTATUSCODES", arg ""
+DEBUG SMTP: Found extension "PIPELINING", arg ""
+DEBUG SMTP: Found extension "CHUNKING", arg ""
+DEBUG SMTP: Found extension "SMTPUTF8", arg ""
+STARTTLS
+220 2.0.0 Ready to start TLS
+EHLO pop-os
+250-smtp.gmail.com at your service, [197.14.231.12]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+DEBUG SMTP: Found extension "SIZE", arg "35882577"
+DEBUG SMTP: Found extension "8BITMIME", arg ""
+DEBUG SMTP: Found extension "AUTH", arg "LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+DEBUG SMTP: Found extension "ENHANCEDSTATUSCODES", arg ""
+DEBUG SMTP: Found extension "PIPELINING", arg ""
+DEBUG SMTP: Found extension "CHUNKING", arg ""
+DEBUG SMTP: Found extension "SMTPUTF8", arg ""
+DEBUG SMTP: protocolConnect login, host=smtp.gmail.com, user=ademyoussfi57@gmail.com, password=<non-null>
+DEBUG SMTP: Attempt to authenticate using mechanisms: LOGIN PLAIN DIGEST-MD5 NTLM XOAUTH2 
+DEBUG SMTP: Using mechanism LOGIN
+DEBUG SMTP: AUTH LOGIN command trace suppressed
+DEBUG SMTP: AUTH LOGIN succeeded
+DEBUG SMTP: use8bit false
+MAIL FROM:<ademyoussfi@pop-os>
+250 2.1.0 OK ffacd0b85a97d-43244940120sm1113819f8f.16 - gsmtp
+RCPT TO:<mehdisfaxi11@gmail.com>
+250 2.1.5 OK ffacd0b85a97d-43244940120sm1113819f8f.16 - gsmtp
+DEBUG SMTP: Verified Addresses
+DEBUG SMTP:   mehdisfaxi11@gmail.com
+DATA
+354 Go ahead ffacd0b85a97d-43244940120sm1113819f8f.16 - gsmtp
+Date: Wed, 17 Dec 2025 22:38:58 +0100 (CET)
+To: mehdisfaxi11@gmail.com
+Message-ID: <246120573.2.1766007538713@pop-os>
+Subject: Your IntelliManage Verification Code
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_0_1828700594.1766007537339"
+
+------=_Part_0_1828700594.1766007537339
+Content-Type: multipart/related; 
+	boundary="----=_Part_1_757264698.1766007537350"
+
+------=_Part_1_757264698.1766007537350
+Content-Type: text/html;charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;'><h2 style='color: #4A90E2; text-align: center;'>IntelliManage</h2><p>Hello,</p><p>Thank you for joining IntelliManage! Please use the following 6-digit code to verify your email address:</p><div style='background-color: #f9f9f9; padding: 15px; border-radius: 5px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333;'>450257</div><p>This code will expire in 10 minutes.</p><p>If you did not request this code, please ignore this email.</p><hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'><p style='font-size: 12px; color: #888; text-align: center;'>&copy; 2025 IntelliManage. All rights reserved.</p></div>
+------=_Part_1_757264698.1766007537350--
+
+------=_Part_0_1828700594.1766007537339--
+.
+250 2.0.0 OK  1766007539 ffacd0b85a97d-43244940120sm1113819f8f.16 - gsmtp
+DEBUG SMTP: message successfully delivered to mail server
+QUIT
+221 2.0.0 closing connection ffacd0b85a97d-43244940120sm1113819f8f.16 - gsmtp
+Hibernate: update verification_codes set code=?,email=?,expiry_date=? where id=?
+Hibernate: select vc1_0.id,vc1_0.code,vc1_0.email,vc1_0.expiry_date from verification_codes vc1_0 where vc1_0.email=?
+Hibernate: select vc1_0.id,vc1_0.code,vc1_0.email,vc1_0.expiry_date from verification_codes vc1_0 where vc1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: update users set email=?,enabled=?,full_name=?,password=?,role_type=? where id=?
+Hibernate: delete from verification_codes where id=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: select au1_0.id,au1_0.created_at,au1_0.email,au1_0.enabled,au1_0.full_name,au1_0.password,au1_0.role_type from users au1_0 where au1_0.email=?
+Hibernate: select pm1_0.project_id,pm1_0.user_id,pm1_0.role_in_project from project_members pm1_0 where pm1_0.user_id=?
