@@ -205,6 +205,76 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Email is required");
+        }
+
+        Optional<AppUser> user = appUserService.findByEmail(email);
+        if (user.isEmpty()) {
+            // For security reasons, don't reveal if user exists or not
+            return ResponseEntity.ok()
+                    .body(Map.of("message", "If an account exists for this email, a reset code has been sent."));
+        }
+
+        try {
+            emailService.sendPasswordResetCode(email);
+            return ResponseEntity.ok()
+                    .body(Map.of("message", "If an account exists for this email, a reset code has been sent."));
+        } catch (Exception e) {
+            log.error("Failed to send password reset code to: {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to send reset code: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        String newPassword = request.get("newPassword");
+
+        if (email == null || code == null || newPassword == null) {
+            return ResponseEntity.badRequest().body("Email, code, and new password are required");
+        }
+
+        try {
+            Optional<VerificationCode> verificationCodeOpt = verificationCodeRepository.findByEmail(email);
+
+            if (verificationCodeOpt.isPresent()) {
+                VerificationCode verificationCode = verificationCodeOpt.get();
+                if (verificationCode.isExpired()) {
+                    return ResponseEntity.status(HttpStatus.GONE).body("Reset code has expired");
+                }
+                if (verificationCode.getCode().equals(code)) {
+                    verificationCodeRepository.deleteByEmail(email);
+
+                    // Update user password
+                    Optional<AppUser> userOpt = appUserService.findByEmail(email);
+                    if (userOpt.isPresent()) {
+                        AppUser user = userOpt.get();
+                        user.setPassword(passwordEncoder.encode(newPassword));
+                        appUserService.save(user);
+                        return ResponseEntity.ok().body(Map.of("message", "Password reset successfully"));
+                    } else {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+                    }
+                } else {
+                    return ResponseEntity.badRequest().body("Invalid reset code");
+                }
+            } else {
+                return ResponseEntity.badRequest().body("No reset code found for this email");
+            }
+        } catch (Exception e) {
+            log.error("Error during password reset for email: {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Reset failed: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         // In a real application with JWT, you might want to blacklist the token
