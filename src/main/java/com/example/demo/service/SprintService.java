@@ -22,7 +22,7 @@ public class SprintService {
     }
 
     public List<Sprint> findByProjectId(Long projectId) {
-        return sprintRepository.findByProjectId(projectId);
+        return sprintRepository.findByProjectIdWithTasks(projectId);
     }
 
     public Optional<Sprint> findById(Long id) {

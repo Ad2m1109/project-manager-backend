@@ -50,7 +50,7 @@ public class TaskController {
     private final TaskActivityService taskActivityService;
 
     @GetMapping("/projects/{projectId}/tasks/filter")
-    @PreAuthorize("hasAuthority('FOUNDER')")
+    @PreAuthorize("hasAnyAuthority('FOUNDER', 'EMPLOYEE')")
     public ResponseEntity<List<TaskDTO>> getFilteredTasks(
             @PathVariable Long projectId,
             @RequestParam(required = false) Long assigneeId,

@@ -23,7 +23,11 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<Task> findAll(Specification<Task> spec) {
-        return taskRepository.findAll(spec);
+        // Ensure assignee, project, and sprint are fetched for filtered tasks
+        return taskRepository.findAll(spec); // JpaSpecificationExecutor doesn't directly support JOIN FETCH in findAll,
+                                            // but the specification itself can define joins.
+                                            // For now, we rely on the default behavior or ensure the spec includes fetches.
+                                            // If performance is an issue, a custom method in repo would be needed.
     }
 
     @Transactional(readOnly = true)
@@ -33,12 +37,12 @@ public class TaskService {
 
     @Transactional(readOnly = true)
     public List<Task> findByProjectId(Long projectId) {
-        return taskRepository.findByProjectId(projectId);
+        return taskRepository.findByProjectIdWithDetails(projectId);
     }
 
     @Transactional(readOnly = true)
     public List<Task> findByProjectIdAndAssigneeId(Long projectId, Long assigneeId) {
-        return taskRepository.findByProjectIdAndAssigneeId(projectId, assigneeId);
+        return taskRepository.findByProjectIdAndAssigneeIdWithDetails(projectId, assigneeId);
     }
 
     @Transactional(readOnly = true)
