@@ -24,4 +24,12 @@ public class TaskSpecification {
     public static Specification<Task> isUnassigned() {
         return (root, query, cb) -> cb.isNull(root.get("assignee"));
     }
+
+    public static Specification<Task> hasSprintId(Long sprintId) {
+        return (root, query, cb) -> cb.equal(root.get("sprint").get("id"), sprintId);
+    }
+
+    public static Specification<Task> isBacklog() {
+        return (root, query, cb) -> cb.isNull(root.get("sprint"));
+    }
 }

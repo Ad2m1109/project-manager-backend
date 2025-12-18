@@ -27,6 +27,8 @@ import com.example.demo.service.AppUserService;
 import com.example.demo.service.ProjectService;
 import com.example.demo.service.SprintService;
 import com.example.demo.service.TaskService;
+import com.example.demo.service.TaskActivityService;
+import com.example.demo.model.TaskActivity;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,12 +47,14 @@ public class TaskController {
     private final ProjectService projectService;
     private final AppUserService appUserService;
     private final SprintService sprintService;
+    private final TaskActivityService taskActivityService;
 
     @GetMapping("/projects/{projectId}/tasks/filter")
     @PreAuthorize("hasAuthority('FOUNDER')")
     public ResponseEntity<List<TaskDTO>> getFilteredTasks(
             @PathVariable Long projectId,
             @RequestParam(required = false) Long assigneeId,
+            @RequestParam(required = false) Long sprintId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority,
             @RequestParam(required = false) boolean unassigned) {
@@ -59,6 +63,13 @@ public class TaskController {
 
         if (assigneeId != null) {
             spec = spec.and(TaskSpecification.hasAssigneeId(assigneeId));
+        }
+        if (sprintId != null) {
+            if (sprintId == -1L) {
+                spec = spec.and(TaskSpecification.isBacklog());
+            } else {
+                spec = spec.and(TaskSpecification.hasSprintId(sprintId));
+            }
         }
         if (status != null && !status.isEmpty()) {
             spec = spec.and(TaskSpecification.hasStatus(status));
@@ -74,7 +85,6 @@ public class TaskController {
         List<TaskDTO> dtos = tasks.stream().map(this::convertToDTO).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
-
 
     // Get all tasks for a specific project
     @GetMapping("/projects/{projectId}/tasks")
@@ -146,6 +156,15 @@ public class TaskController {
         }
 
         Task savedTask = taskService.save(task);
+
+        // Record activity
+        TaskActivity activity = new TaskActivity();
+        activity.setTask(savedTask);
+        activity.setUser(currentUser);
+        activity.setAction("TASK_CREATED");
+        activity.setNewValue(savedTask.getTitle());
+        taskActivityService.save(activity);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedTask));
     }
 
@@ -163,6 +182,10 @@ public class TaskController {
 
         return taskService.findById(id)
                 .map(existingTask -> {
+                    String oldStatus = existingTask.getStatus();
+                    String oldAssignee = existingTask.getAssignee() != null ? existingTask.getAssignee().getFullName()
+                            : "Unassigned";
+
                     existingTask.setTitle(taskDTO.getTitle());
                     existingTask.setDescription(taskDTO.getDescription());
                     existingTask.setStatus(taskDTO.getStatus());
@@ -186,9 +209,22 @@ public class TaskController {
                         existingTask.setSprint(null);
                     }
 
-                    return ResponseEntity.ok(convertToDTO(taskService.save(existingTask)));
+                    Task savedTask = taskService.save(existingTask);
+
+                    // Record activities
+                    if (!oldStatus.equals(savedTask.getStatus())) {
+                        recordActivity(savedTask, currentUser, "STATUS_CHANGE", oldStatus, savedTask.getStatus());
+                    }
+                    String newAssignee = savedTask.getAssignee() != null ? savedTask.getAssignee().getFullName()
+                            : "Unassigned";
+                    if (!oldAssignee.equals(newAssignee)) {
+                        recordActivity(savedTask, currentUser, "ASSIGNEE_CHANGE", oldAssignee, newAssignee);
+                    }
+
+                    return ResponseEntity.ok(convertToDTO(savedTask));
                 })
                 .orElse(ResponseEntity.notFound().build());
+
     }
 
     // Update task status (for Kanban board drag-and-drop)
@@ -204,13 +240,21 @@ public class TaskController {
                 .map(existingTask -> {
                     // Security check: Founders can update any task, employees only their own.
                     if ("EMPLOYEE".equals(currentUser.getRoleType())) {
-                        if (existingTask.getAssignee() == null || !existingTask.getAssignee().getId().equals(currentUser.getId())) {
+                        if (existingTask.getAssignee() == null
+                                || !existingTask.getAssignee().getId().equals(currentUser.getId())) {
                             return ResponseEntity.status(HttpStatus.FORBIDDEN).<TaskDTO>build();
                         }
                     }
-                    
+
+                    String oldStatus = existingTask.getStatus();
                     existingTask.setStatus(taskDTO.getStatus());
                     Task updatedTask = taskService.save(existingTask);
+
+                    // Record activity
+                    if (!oldStatus.equals(updatedTask.getStatus())) {
+                        recordActivity(updatedTask, currentUser, "STATUS_CHANGE", oldStatus, updatedTask.getStatus());
+                    }
+
                     return ResponseEntity.ok(convertToDTO(updatedTask));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -263,5 +307,17 @@ public class TaskController {
         }
 
         return dto;
+    }
+
+    private void recordActivity(Task task, AppUser user, String action, String oldValue, String newValue) {
+        if (user == null)
+            return;
+        TaskActivity activity = new TaskActivity();
+        activity.setTask(task);
+        activity.setUser(user);
+        activity.setAction(action);
+        activity.setOldValue(oldValue);
+        activity.setNewValue(newValue);
+        taskActivityService.save(activity);
     }
 }
