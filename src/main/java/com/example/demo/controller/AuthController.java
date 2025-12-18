@@ -50,7 +50,7 @@ public class AuthController {
         }
 
         try {
-            Optional<VerificationCode> verificationCodeOpt = verificationCodeRepository.findByEmail(email);
+            Optional<VerificationCode> verificationCodeOpt = verificationCodeRepository.findByEmailAndType(email, "VERIFICATION");
 
             if (verificationCodeOpt.isPresent()) {
                 VerificationCode verificationCode = verificationCodeOpt.get();
@@ -58,7 +58,7 @@ public class AuthController {
                     return ResponseEntity.status(HttpStatus.GONE).body("Verification code has expired");
                 }
                 if (verificationCode.getCode().equals(code)) {
-                    verificationCodeRepository.deleteByEmail(email);
+                    verificationCodeRepository.deleteByEmailAndType(email, "VERIFICATION");
 
                     // Activate user
                     appUserService.findByEmail(email).ifPresent(user -> {
@@ -242,7 +242,7 @@ public class AuthController {
         }
 
         try {
-            Optional<VerificationCode> verificationCodeOpt = verificationCodeRepository.findByEmail(email);
+            Optional<VerificationCode> verificationCodeOpt = verificationCodeRepository.findByEmailAndType(email, "RESET");
 
             if (verificationCodeOpt.isPresent()) {
                 VerificationCode verificationCode = verificationCodeOpt.get();
@@ -250,7 +250,7 @@ public class AuthController {
                     return ResponseEntity.status(HttpStatus.GONE).body("Reset code has expired");
                 }
                 if (verificationCode.getCode().equals(code)) {
-                    verificationCodeRepository.deleteByEmail(email);
+                    verificationCodeRepository.deleteByEmailAndType(email, "RESET");
 
                     // Update user password
                     Optional<AppUser> userOpt = appUserService.findByEmail(email);

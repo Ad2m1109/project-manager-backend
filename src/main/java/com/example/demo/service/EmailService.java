@@ -2,112 +2,61 @@ package com.example.demo.service;
 
 import com.example.demo.model.VerificationCode;
 import com.example.demo.repository.VerificationCodeRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Random;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender mailSender;
-    private final VerificationCodeRepository verificationCodeRepository;
+    @Autowired
+    private JavaMailSender mailSender;
 
-    @Transactional
-    public void sendVerificationCode(String email) throws MessagingException {
-        String code = generateCode();
+    @Autowired
+    private VerificationCodeRepository verificationCodeRepository;
 
-        // Save or update code in DB
-        VerificationCode verificationCode = verificationCodeRepository.findByEmail(email)
-                .orElse(new VerificationCode());
-
-        verificationCode.setEmail(email);
-        verificationCode.setCode(code);
-        verificationCode.setExpiryDate(Instant.now().plus(10, ChronoUnit.MINUTES));
-
-        verificationCodeRepository.save(verificationCode);
-
-        // Send email
-        sendEmail(email, code);
+    public void sendSimpleEmail(String to, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("ademyoussfi57@gmail.com"); // This should ideally be configured in application.properties
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+        mailSender.send(message);
     }
 
-    @Transactional
-    public void sendPasswordResetCode(String email) throws MessagingException {
+    public void sendVerificationCode(String email) {
         String code = generateCode();
+        saveVerificationCode(email, code, "VERIFICATION");
+        String subject = "Email Verification Code";
+        String text = "Your verification code is: " + code + "\n\n" 
+                    + "This code is valid for 10 minutes.";
+        sendSimpleEmail(email, subject, text);
+    }
 
-        VerificationCode verificationCode = verificationCodeRepository.findByEmail(email)
-                .orElse(new VerificationCode());
-
-        verificationCode.setEmail(email);
-        verificationCode.setCode(code);
-        verificationCode.setExpiryDate(Instant.now().plus(10, ChronoUnit.MINUTES));
-
-        verificationCodeRepository.save(verificationCode);
-
-        String subject = "IntelliManage Password Reset Code";
-        String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;'>"
-                +
-                "<h2 style='color: #4A90E2; text-align: center;'>IntelliManage</h2>" +
-                "<p>Hello,</p>" +
-                "<p>You requested a password reset. Please use the following 6-digit code to reset your password:</p>"
-                +
-                "<div style='background-color: #f9f9f9; padding: 15px; border-radius: 5px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333;'>"
-                +
-                code +
-                "</div>" +
-                "<p>This code will expire in 10 minutes.</p>" +
-                "<p>If you did not request a password reset, please ignore this email.</p>" +
-                "<hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>" +
-                "<p style='font-size: 12px; color: #888; text-align: center;'>&copy; 2025 IntelliManage. All rights reserved.</p>"
-                +
-                "</div>";
-
-        sendEmail(email, subject, content);
+    public void sendPasswordResetCode(String email) {
+        String code = generateCode();
+        saveVerificationCode(email, code, "RESET");
+        String subject = "Password Reset Code";
+        String text = "Your password reset code is: " + code + "\n\n" 
+                    + "This code is valid for 10 minutes.";
+        sendSimpleEmail(email, subject, text);
     }
 
     private String generateCode() {
-        Random random = new Random();
-        int code = 100000 + random.nextInt(900000);
-        return String.valueOf(code);
+        return String.format("%06d", (int) (Math.random() * 1000000));
     }
 
-    private void sendEmail(String to, String code) throws MessagingException {
-        String subject = "Your IntelliManage Verification Code";
-        String content = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;'>"
-                +
-                "<h2 style='color: #4A90E2; text-align: center;'>IntelliManage</h2>" +
-                "<p>Hello,</p>" +
-                "<p>Thank you for joining IntelliManage! Please use the following 6-digit code to verify your email address:</p>"
-                +
-                "<div style='background-color: #f9f9f9; padding: 15px; border-radius: 5px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #333;'>"
-                +
-                code +
-                "</div>" +
-                "<p>This code will expire in 10 minutes.</p>" +
-                "<p>If you did not request this code, please ignore this email.</p>" +
-                "<hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>" +
-                "<p style='font-size: 12px; color: #888; text-align: center;'>&copy; 2025 IntelliManage. All rights reserved.</p>"
-                +
-                "</div>";
-        sendEmail(to, subject, content);
-    }
+    private void saveVerificationCode(String email, String code, String type) {
+        verificationCodeRepository.deleteByEmailAndType(email, type); // Delete existing codes for this email and type
 
-    private void sendEmail(String to, String subject, String content) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(content, true);
-
-        mailSender.send(message);
+        VerificationCode verificationCode = new VerificationCode();
+        verificationCode.setEmail(email);
+        verificationCode.setCode(code);
+        verificationCode.setType(type);
+        verificationCode.setExpiryDate(Instant.now().plusSeconds(600)); // 10 minutes expiry
+        verificationCodeRepository.save(verificationCode);
     }
 }

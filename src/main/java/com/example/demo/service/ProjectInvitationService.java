@@ -33,6 +33,9 @@ public class ProjectInvitationService {
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public ProjectInvitationDTO sendInvitation(Long projectId, Long invitedUserId, Long invitedById) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
@@ -56,6 +59,14 @@ public class ProjectInvitationService {
         invitation.setStatus("PENDING");
 
         ProjectInvitation saved = invitationRepository.save(invitation);
+
+        String subject = "Project Invitation: " + project.getName();
+        String text = "Dear " + invitedUser.getFullName() + ",\n\n"
+                    + "You have been invited to the project '" + project.getName() + "' by " + invitedBy.getFullName() + ".\n"
+                    + "Please log in to the Project Manager application to accept or reject the invitation.\n\n"
+                    + "Regards,\nThe Project Manager Team";
+        emailService.sendSimpleEmail(invitedUser.getEmail(), subject, text);
+
         return convertToDTO(saved);
     }
 
@@ -91,6 +102,14 @@ public class ProjectInvitationService {
         invitation.setStatus("PENDING");
 
         ProjectInvitation saved = invitationRepository.save(invitation);
+
+        String subject = "Project Invitation: " + project.getName();
+        String text = "Dear " + invitedUser.getFullName() + ",\n\n"
+                    + "You have been invited to the project '" + project.getName() + "' by " + invitedBy.getFullName() + ".\n"
+                    + "Please log in to the Project Manager application to accept or reject the invitation.\n\n"
+                    + "Regards,\nThe Project Manager Team";
+        emailService.sendSimpleEmail(invitedUser.getEmail(), subject, text);
+
         return convertToDTO(saved);
     }
 

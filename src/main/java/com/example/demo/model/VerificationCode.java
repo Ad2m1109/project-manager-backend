@@ -21,6 +21,9 @@ public class VerificationCode {
     private String code;
 
     @Column(nullable = false)
+    private String type; // e.g., "VERIFICATION", "RESET"
+
+    @Column(nullable = false)
     private Instant expiryDate;
 
     public boolean isExpired() {

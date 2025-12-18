@@ -28,6 +28,7 @@ import com.example.demo.service.ProjectService;
 import com.example.demo.service.SprintService;
 import com.example.demo.service.TaskService;
 import com.example.demo.service.TaskActivityService;
+import com.example.demo.service.EmailService;
 import com.example.demo.model.TaskActivity;
 
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class TaskController {
     private final AppUserService appUserService;
     private final SprintService sprintService;
     private final TaskActivityService taskActivityService;
+    private final EmailService emailService;
 
     @GetMapping("/projects/{projectId}/tasks/filter")
     @PreAuthorize("hasAnyAuthority('FOUNDER', 'EMPLOYEE')")
@@ -157,6 +159,19 @@ public class TaskController {
 
         Task savedTask = taskService.save(task);
 
+        // Send email to assignee if assigned
+        if (savedTask.getAssignee() != null) {
+            String subject = "New Task Assigned: " + savedTask.getTitle();
+            String text = "Dear " + savedTask.getAssignee().getFullName() + ",\n\n"
+                        + "A new task '" + savedTask.getTitle() + "' has been assigned to you in project '" + project.getName() + "'.\n"
+                        + "Description: " + savedTask.getDescription() + "\n"
+                        + "Status: " + savedTask.getStatus() + "\n"
+                        + "Priority: " + savedTask.getPriority() + "\n\n"
+                        + "Please log in to the Project Manager application to view the task details.\n\n"
+                        + "Regards,\nThe Project Manager Team";
+            emailService.sendSimpleEmail(savedTask.getAssignee().getEmail(), subject, text);
+        }
+
         // Record activity
         TaskActivity activity = new TaskActivity();
         activity.setTask(savedTask);
@@ -183,8 +198,8 @@ public class TaskController {
         return taskService.findById(id)
                 .map(existingTask -> {
                     String oldStatus = existingTask.getStatus();
-                    String oldAssignee = existingTask.getAssignee() != null ? existingTask.getAssignee().getFullName()
-                            : "Unassigned";
+                    AppUser oldAssignee = existingTask.getAssignee();
+                    String oldAssigneeName = oldAssignee != null ? oldAssignee.getFullName() : "Unassigned";
 
                     existingTask.setTitle(taskDTO.getTitle());
                     existingTask.setDescription(taskDTO.getDescription());
@@ -215,10 +230,31 @@ public class TaskController {
                     if (!oldStatus.equals(savedTask.getStatus())) {
                         recordActivity(savedTask, currentUser, "STATUS_CHANGE", oldStatus, savedTask.getStatus());
                     }
-                    String newAssignee = savedTask.getAssignee() != null ? savedTask.getAssignee().getFullName()
-                            : "Unassigned";
-                    if (!oldAssignee.equals(newAssignee)) {
-                        recordActivity(savedTask, currentUser, "ASSIGNEE_CHANGE", oldAssignee, newAssignee);
+                    AppUser newAssignee = savedTask.getAssignee();
+                    String newAssigneeName = newAssignee != null ? newAssignee.getFullName() : "Unassigned";
+
+                    if (!oldAssigneeName.equals(newAssigneeName)) {
+                        recordActivity(savedTask, currentUser, "ASSIGNEE_CHANGE", oldAssigneeName, newAssigneeName);
+                        // Send email to new assignee if assigned
+                        if (newAssignee != null) {
+                            String subject = "Task Assignment Update: " + savedTask.getTitle();
+                            String text = "Dear " + newAssignee.getFullName() + ",\n\n"
+                                        + "The task '" + savedTask.getTitle() + "' in project '" + savedTask.getProject().getName() + "' has been assigned to you.\n"
+                                        + "Description: " + savedTask.getDescription() + "\n"
+                                        + "Status: " + savedTask.getStatus() + "\n"
+                                        + "Priority: " + savedTask.getPriority() + "\n\n"
+                                        + "Please log in to the Project Manager application to view the task details.\n\n"
+                                        + "Regards,\nThe Project Manager Team";
+                            emailService.sendSimpleEmail(newAssignee.getEmail(), subject, text);
+                        }
+                        // Optionally, notify old assignee if they were removed
+                        if (oldAssignee != null && newAssignee == null) {
+                            String subject = "Task Unassigned: " + savedTask.getTitle();
+                            String text = "Dear " + oldAssignee.getFullName() + ",\n\n"
+                                        + "The task '" + savedTask.getTitle() + "' in project '" + savedTask.getProject().getName() + "' has been unassigned from you.\n\n"
+                                        + "Regards,\nThe Project Manager Team";
+                            emailService.sendSimpleEmail(oldAssignee.getEmail(), subject, text);
+                        }
                     }
 
                     return ResponseEntity.ok(convertToDTO(savedTask));
