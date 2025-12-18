@@ -234,16 +234,18 @@ public class TaskController {
             @RequestBody TaskDTO taskDTO) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AppUser currentUser = (AppUser) auth.getPrincipal();
+        String email = auth.getName();
+        AppUser currentUser = appUserService.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         return taskService.findById(id)
                 .map(existingTask -> {
-                    // Security check: Founders can update any task, employees only their own.
-                    if ("EMPLOYEE".equals(currentUser.getRoleType())) {
-                        if (existingTask.getAssignee() == null
-                                || !existingTask.getAssignee().getId().equals(currentUser.getId())) {
-                            return ResponseEntity.status(HttpStatus.FORBIDDEN).<TaskDTO>build();
-                        }
+                    // Authorization check:
+                    boolean isProjectFounder = existingTask.getProject().getFounder().getId().equals(currentUser.getId());
+                    boolean isAssignee = existingTask.getAssignee() != null && existingTask.getAssignee().getId().equals(currentUser.getId());
+
+                    if (!isProjectFounder && !isAssignee) {
+                         return new ResponseEntity<TaskDTO>(HttpStatus.FORBIDDEN);
                     }
 
                     String oldStatus = existingTask.getStatus();
@@ -257,7 +259,7 @@ public class TaskController {
 
                     return ResponseEntity.ok(convertToDTO(updatedTask));
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(new ResponseEntity<TaskDTO>(HttpStatus.NOT_FOUND));
     }
 
     // Delete a task
