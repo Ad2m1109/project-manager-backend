@@ -12,11 +12,13 @@ import java.time.Instant;
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+    private final VerificationCodeRepository verificationCodeRepository;
 
-    @Autowired
-    private VerificationCodeRepository verificationCodeRepository;
+    public EmailService(JavaMailSender mailSender, VerificationCodeRepository verificationCodeRepository) {
+        this.mailSender = mailSender;
+        this.verificationCodeRepository = verificationCodeRepository;
+    }
 
     public void sendSimpleEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();

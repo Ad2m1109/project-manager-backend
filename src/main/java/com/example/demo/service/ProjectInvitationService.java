@@ -21,20 +21,23 @@ import com.example.demo.repository.ProjectRepository;
 @Service
 public class ProjectInvitationService {
 
-    @Autowired
-    private ProjectInvitationRepository invitationRepository;
+    private final ProjectInvitationRepository invitationRepository;
+    private final ProjectRepository projectRepository;
+    private final AppUserRepository userRepository;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final EmailService emailService;
 
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private AppUserRepository userRepository;
-
-    @Autowired
-    private ProjectMemberRepository projectMemberRepository;
-
-    @Autowired
-    private EmailService emailService;
+    public ProjectInvitationService(ProjectInvitationRepository invitationRepository,
+                                    ProjectRepository projectRepository,
+                                    AppUserRepository userRepository,
+                                    ProjectMemberRepository projectMemberRepository,
+                                    EmailService emailService) {
+        this.invitationRepository = invitationRepository;
+        this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
+        this.projectMemberRepository = projectMemberRepository;
+        this.emailService = emailService;
+    }
 
     public ProjectInvitationDTO sendInvitation(Long projectId, Long invitedUserId, Long invitedById) {
         Project project = projectRepository.findById(projectId)
