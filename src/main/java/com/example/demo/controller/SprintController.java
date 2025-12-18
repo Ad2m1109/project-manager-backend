@@ -141,7 +141,7 @@ public class SprintController {
             dto.setTaskCount(sprint.getTasks().size());
             dto.setTasks(sprint.getTasks().stream().map(this::convertToTaskDTO).collect(Collectors.toList()));
 
-            long completed = sprint.getTasks().stream().filter(t -> "DONE".equalsIgnoreCase(t.getStatus())).count();
+            long completed = sprint.getTasks().stream().filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus())).count();
             dto.setProgress(dto.getTaskCount() > 0 ? (double) completed / dto.getTaskCount() * 100 : 0);
         } else {
             dto.setTaskCount(0);

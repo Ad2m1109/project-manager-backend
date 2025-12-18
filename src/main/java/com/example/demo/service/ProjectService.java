@@ -56,7 +56,7 @@ public class ProjectService {
 
         // Overall Progress
         long totalTasks = allTasks.size();
-        long completedTasks = allTasks.stream().filter(t -> "DONE".equalsIgnoreCase(t.getStatus())).count();
+        long completedTasks = allTasks.stream().filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus())).count();
         dashboard.setOverallProgress(totalTasks > 0 ? (double) completedTasks / totalTasks * 100 : 0);
 
         // Task Distribution
@@ -87,7 +87,7 @@ public class ProjectService {
             sprintDTO.setEndDate(activeSprint.getEndDate());
 
             long sprintTotal = activeSprint.getTasks().size();
-            long sprintCompleted = activeSprint.getTasks().stream().filter(t -> "DONE".equalsIgnoreCase(t.getStatus()))
+            long sprintCompleted = activeSprint.getTasks().stream().filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus()))
                     .count();
             sprintDTO.setTaskCount((int) sprintTotal);
             sprintDTO.setProgress(sprintTotal > 0 ? (double) sprintCompleted / sprintTotal * 100 : 0);
