@@ -24,6 +24,8 @@ public class Sprint {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    private String status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;

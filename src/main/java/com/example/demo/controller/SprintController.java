@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.demo.model.AppUser;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,6 +120,17 @@ public class SprintController {
         dto.setGoal(sprint.getGoal());
         dto.setStartDate(sprint.getStartDate());
         dto.setEndDate(sprint.getEndDate());
+
+        LocalDate now = LocalDate.now();
+        String status;
+        if (sprint.getEndDate() != null && now.isAfter(sprint.getEndDate())) {
+            status = "COMPLETED";
+        } else if (sprint.getStartDate() != null && (now.isAfter(sprint.getStartDate()) || now.isEqual(sprint.getStartDate()))) {
+            status = "ACTIVE";
+        } else {
+            status = "PLANNED";
+        }
+        dto.setStatus(status);
 
         if (sprint.getProject() != null) {
             dto.setProjectId(sprint.getProject().getId());

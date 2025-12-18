@@ -11,6 +11,7 @@ public class SprintDTO {
     private String goal;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String status;
     private Long projectId;
     private String projectName;
     private Integer taskCount;
