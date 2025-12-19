@@ -11,29 +11,26 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "chat_logs")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ChatLog {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String message;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
 
     @Column(nullable = false)
-    private String sender; // "user" or "ai"
+    private LocalDateTime date;
 
-    private LocalDateTime timestamp;
-
-    @PrePersist
-    protected void onCreate() {
-        timestamp = LocalDateTime.now();
-    }
+    @Lob
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
+    private String content;
 }

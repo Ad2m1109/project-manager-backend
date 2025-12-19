@@ -1,53 +1,44 @@
-package main.java.com.example.demo.controller;
+package com.example.demo.controller;
 
+import com.example.demo.dto.ChatLogRequest;
 import com.example.demo.model.AppUser;
 import com.example.demo.model.ChatLog;
+import com.example.demo.model.Project;
 import com.example.demo.repository.AppUserRepository;
-import com.example.demo.repository.ChatLogRepository;
+import com.example.demo.repository.ProjectRepository;
+import com.example.demo.service.ChatLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/chat-logs")
+@RequestMapping("/api/chat-logs")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class ChatLogController {
 
-    private final ChatLogRepository chatLogRepository;
+    private final ChatLogService chatLogService;
     private final AppUserRepository appUserRepository;
-
-    @GetMapping
-    public ResponseEntity<List<ChatLog>> getChatHistory(@AuthenticationPrincipal UserDetails userDetails) {
-        AppUser user = appUserRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(chatLogRepository.findByUserIdOrderByTimestampAsc(user.getId()));
-    }
+    private final ProjectRepository projectRepository;
 
     @PostMapping
-    public ResponseEntity<ChatLog> saveChatMessage(@AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody Map<String, String> request) {
-        AppUser user = appUserRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ResponseEntity<ChatLog> saveChatLog(@RequestBody ChatLogRequest request) {
+        AppUser user = appUserRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
 
-        String message = request.get("message");
-        String sender = request.get("sender");
-
-        if (message == null || sender == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + request.getProjectId()));
 
         ChatLog chatLog = ChatLog.builder()
                 .user(user)
-                .message(message)
-                .sender(sender)
+                .project(project)
+                .date(request.getDate() != null ? request.getDate() : LocalDateTime.now())
+                .content(request.getContent())
                 .build();
 
-        return ResponseEntity.ok(chatLogRepository.save(chatLog));
+        ChatLog savedChatLog = chatLogService.saveChatLog(chatLog);
+        return new ResponseEntity<>(savedChatLog, HttpStatus.CREATED);
     }
 }

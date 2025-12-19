@@ -57,10 +57,6 @@ public class Task {
     @JsonIgnore
     private Set<Attachment> attachments;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private Set<AIAnalysis> aiAnalyses;
-
     @Column(updatable = false)
     private Instant createdAt = Instant.now();
 }
