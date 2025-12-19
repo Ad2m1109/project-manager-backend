@@ -32,4 +32,8 @@ public class TaskSpecification {
     public static Specification<Task> isBacklog() {
         return (root, query, cb) -> cb.isNull(root.get("sprint"));
     }
+
+    public static Specification<Task> isAssigned() {
+        return (root, query, cb) -> cb.isNotNull(root.get("assignee"));
+    }
 }

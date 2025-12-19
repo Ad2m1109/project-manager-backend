@@ -72,10 +72,23 @@ public class ProjectService {
 
         // Active Sprint
         LocalDate now = LocalDate.now();
+
+        // 1. Try to find a current active sprint that is NOT completed
         Optional<Sprint> activeSprintOpt = allSprints.stream()
-                .filter(s -> (s.getStartDate() != null && !s.getStartDate().isAfter(now)) &&
-                        (s.getEndDate() != null && !s.getEndDate().isBefore(now)))
+                .filter(s -> s.getStartDate() != null && s.getEndDate() != null)
+                .filter(s -> !s.getStartDate().isAfter(now) && !s.getEndDate().isBefore(now)) // Current date range
+                .filter(s -> !"COMPLETED".equalsIgnoreCase(s.getStatus())) // Not completed
+                .sorted((s1, s2) -> s1.getStartDate().compareTo(s2.getStartDate()))
                 .findFirst();
+
+        // 2. If no current active sprint, look for the next upcoming sprint
+        if (activeSprintOpt.isEmpty()) {
+            activeSprintOpt = allSprints.stream()
+                    .filter(s -> s.getStartDate() != null && s.getStartDate().isAfter(now)) // Future start date
+                    .filter(s -> !"COMPLETED".equalsIgnoreCase(s.getStatus())) // Not completed
+                    .sorted((s1, s2) -> s1.getStartDate().compareTo(s2.getStartDate()))
+                    .findFirst();
+        }
 
         if (activeSprintOpt.isPresent()) {
             Sprint activeSprint = activeSprintOpt.get();
@@ -87,13 +100,46 @@ public class ProjectService {
             sprintDTO.setEndDate(activeSprint.getEndDate());
 
             long sprintTotal = activeSprint.getTasks().size();
-            long sprintCompleted = activeSprint.getTasks().stream().filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus()))
+            long sprintCompleted = activeSprint.getTasks().stream()
+                    .filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus()))
                     .count();
             sprintDTO.setTaskCount((int) sprintTotal);
             sprintDTO.setProgress(sprintTotal > 0 ? (double) sprintCompleted / sprintTotal * 100 : 0);
+
+            // Populate tasks
+            List<com.example.demo.dto.TaskDTO> taskDTOs = activeSprint.getTasks().stream()
+                    .map(this::convertToTaskDTO)
+                    .collect(Collectors.toList());
+            sprintDTO.setTasks(taskDTOs);
+
             dashboard.setActiveSprint(sprintDTO);
         }
 
         return dashboard;
+    }
+
+    private com.example.demo.dto.TaskDTO convertToTaskDTO(Task task) {
+        com.example.demo.dto.TaskDTO dto = new com.example.demo.dto.TaskDTO();
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setDescription(task.getDescription());
+        dto.setStatus(task.getStatus());
+        dto.setPriority(task.getPriority());
+        dto.setProjectId(task.getProject().getId());
+        dto.setProjectName(task.getProject().getName());
+        if (task.getSprint() != null) {
+            dto.setSprintId(task.getSprint().getId());
+            dto.setSprintName(task.getSprint().getName());
+        }
+        if (task.getAssignee() != null) {
+            dto.setAssigneeId(task.getAssignee().getId());
+            dto.setAssigneeName(task.getAssignee().getFullName());
+        }
+        if (task.getReporter() != null) {
+            dto.setReporterId(task.getReporter().getId());
+            dto.setReporterName(task.getReporter().getFullName());
+        }
+        dto.setCreatedAt(task.getCreatedAt());
+        return dto;
     }
 }
