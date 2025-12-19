@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Add this line
+@EnableMethodSecurity 
 @RequiredArgsConstructor
 public class SecurityConfig {
 
