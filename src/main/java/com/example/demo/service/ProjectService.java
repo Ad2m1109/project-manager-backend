@@ -52,6 +52,8 @@ public class ProjectService {
         List<Task> allTasks = taskRepository.findByProjectId(projectId);
         List<Sprint> allSprints = sprintRepository.findByProjectId(projectId);
 
+        LocalDate now = LocalDate.now();
+
         ProjectDashboardDTO dashboard = new ProjectDashboardDTO();
 
         // Overall Progress
@@ -67,11 +69,13 @@ public class ProjectService {
         // Blocked and Overdue
         dashboard
                 .setBlockedTasksCount(allTasks.stream().filter(t -> "BLOCKED".equalsIgnoreCase(t.getStatus())).count());
-        // For overdue, we'd need a dueDate in Task. For now, let's assume no overdue.
-        dashboard.setOverdueTasksCount(0);
+        long overdueTasksCount = allTasks.stream()
+                .filter(task -> task.getSprint() != null && task.getSprint().getEndDate() != null)
+                .filter(task -> task.getSprint().getEndDate().isBefore(now) && !"COMPLETED".equalsIgnoreCase(task.getStatus()))
+                .count();
+        dashboard.setOverdueTasksCount(overdueTasksCount);
 
         // Active Sprint
-        LocalDate now = LocalDate.now();
 
         // 1. Try to find a current active sprint that is NOT completed
         Optional<Sprint> activeSprintOpt = allSprints.stream()
@@ -115,6 +119,12 @@ public class ProjectService {
             dashboard.setActiveSprint(sprintDTO);
         }
 
+        // Populate allSprints for the timeline
+        List<SprintDTO> allSprintDTOs = allSprints.stream()
+                .map(this::convertToSprintDTO)
+                .collect(Collectors.toList());
+        dashboard.setAllSprints(allSprintDTOs);
+
         return dashboard;
     }
 
@@ -140,6 +150,19 @@ public class ProjectService {
             dto.setReporterName(task.getReporter().getFullName());
         }
         dto.setCreatedAt(task.getCreatedAt());
+        return dto;
+    }
+
+    private SprintDTO convertToSprintDTO(Sprint sprint) {
+        SprintDTO dto = new SprintDTO();
+        dto.setId(sprint.getId());
+        dto.setName(sprint.getName());
+        dto.setGoal(sprint.getGoal());
+        dto.setStartDate(sprint.getStartDate());
+        dto.setEndDate(sprint.getEndDate());
+        dto.setStatus(sprint.getStatus());
+        // For timeline, we might not need all tasks, but if needed, convert them here
+        // dto.setTasks(sprint.getTasks().stream().map(this::convertToTaskDTO).collect(Collectors.toList()));
         return dto;
     }
 }
